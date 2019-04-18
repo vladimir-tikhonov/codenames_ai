@@ -2,15 +2,20 @@ from typing import List, Dict, Tuple
 from gensim.models import KeyedVectors
 from .association import Association
 from .metrics import get_score
+from functools import partial, reduce
 
 
-def build_associations(words: List[str], model: KeyedVectors, config: Dict[str, str]) -> List[Association]:
+def build_associations(
+        words: List[str],
+        rival_words_with_coefficients: List[Tuple[str, float]],
+        model: KeyedVectors,
+        config: Dict[str, str]) -> List[Association]:
     two_word_associations = []
     for i, word_a in enumerate(words):
         for word_b in words[i + 1:]:
             two_word_associations.extend(_get_all_associations_between(word_a, word_b, model, config))
 
-    result = two_word_associations.copy()
+    all_associations = two_word_associations.copy()
     associations_to_amend = two_word_associations
     while len(associations_to_amend) != 0:
         extended_associations = _extend_associations_with(
@@ -19,12 +24,25 @@ def build_associations(words: List[str], model: KeyedVectors, config: Dict[str, 
             model,
             config
         )
-        result.extend(extended_associations)
+        all_associations.extend(extended_associations)
         associations_to_amend = extended_associations
 
-    return _remove_similar_explanation_of_the_same_thing(
-        _deduplicate_associations(result),
-        config
+    processing_steps = [
+        partial(_deduplicate_associations),
+        partial(
+            _add_rival_words_and_filter_associations,
+            rival_words_with_coefficients=rival_words_with_coefficients,
+            model=model,
+            config=config
+        ),
+        partial(_remove_invalid_associations),
+        partial(_remove_similar_explanation_of_the_same_thing, config=config),
+    ]
+
+    return reduce(
+        lambda associations, processing_step: processing_step(associations),
+        processing_steps,
+        all_associations
     )
 
 
@@ -81,6 +99,25 @@ def _extend_associations_with(
     return result
 
 
+def _remove_invalid_associations(associations: List[Association]) -> List[Association]:
+    return list(filter(lambda association: is_valid_association(association), associations))
+
+
+def is_valid_association(association: Association) -> bool:
+    association_matches_associated_words = any(
+        [associated_word in association.association_word or association.association_word in associated_word
+         for associated_word in association.associated_words]
+    )
+    if association_matches_associated_words:
+        return False
+
+    association_contains_invalid_characters = '-' in association.association_word
+    if association_contains_invalid_characters:
+        return False
+
+    return True
+
+
 def _deduplicate_associations(associations: List[Association]) -> List[Association]:
     result = []
     associations_sorted_by_size = sorted(associations, key=lambda a: a.size(), reverse=True)
@@ -124,6 +161,43 @@ def _remove_similar_explanation_of_the_same_thing(
         else:
             sorted_associations = sorted(grouped_associations, key=lambda a: get_score(a), reverse=True)
             result.extend(sorted_associations[:associations_to_keep])
+    return result
+
+
+def _add_rival_words_and_filter_associations(
+        associations: List[Association],
+        rival_words_with_coefficients: List[Tuple[str, float]],
+        model: KeyedVectors,
+        config: Dict[str, str]) -> List[Association]:
+    result: List[Association] = []
+    valid_pos_tags_for_associations = config['ValidPOSTagsForAssociations'].split(',')
+    valid_pos_tags_for_associated_words = config['ValidPOSTagsForAssociatedWords'].split(',')
+
+    for association in associations:
+        min_associated_word_score = min(association.associated_word_scores)
+        association_word_with_tag = _add_pos_tag(
+            association.association_word,
+            _get_most_likely_pos_tag(association.association_word, valid_pos_tags_for_associations, model)
+        )
+
+        association_is_too_dangerous = False
+        for rival_word, rival_word_coefficient in rival_words_with_coefficients:
+            rival_word_with_pos_tag = _add_pos_tag(
+                rival_word,
+                _get_most_likely_pos_tag(rival_word, valid_pos_tags_for_associated_words, model)
+            )
+
+            rival_word_score = model.similarity(association_word_with_tag, rival_word_with_pos_tag)
+            scaled_rival_word_score = rival_word_coefficient * rival_word_score
+            if scaled_rival_word_score > min_associated_word_score:
+                association_is_too_dangerous = True
+                break
+
+            association.add_rival_word((rival_word, rival_word_score))
+
+        if not association_is_too_dangerous:
+            result.append(association)
+
     return result
 
 

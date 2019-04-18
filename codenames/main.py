@@ -16,8 +16,11 @@ associations = build_associations(
         'лад',
         'норка',
     ],
+    [('птица', 1), ('музыкант', 1)],
     w2v_models['ru'],
     app_config['associations']
 )
-print(sorted(associations, key=lambda association: get_score(association), reverse=True)[:20])
+
 print(len(associations))
+for association in sorted(associations, key=lambda a: get_score(a), reverse=True):
+    print(association)
