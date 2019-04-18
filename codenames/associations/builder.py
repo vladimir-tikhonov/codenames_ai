@@ -249,4 +249,7 @@ def _get_most_likely_pos_tag(word: str, pos_tags: List[str], model: KeyedVectors
 
         post_tags_with_frequencies.append((pos_tag, model.vocab[word_with_pos_tag].count))
 
+    if len(post_tags_with_frequencies) == 0:
+        raise ValueError(f'Word {word} is not in the vocabulary')
+
     return max(post_tags_with_frequencies, key=lambda tag_with_frequency: tag_with_frequency[1])[0]
