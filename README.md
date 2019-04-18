@@ -10,3 +10,11 @@ python -m codenames.cli fox,dog --opponent-agents cat,mouse --assassins duck --b
 # Show help and exit
 python -m codenames.cli --help
 ```
+
+### Dev cheatsheet
+```bash
+# Linting
+pylint codenames
+flake8 codenames
+mypy codenames --strict
+```

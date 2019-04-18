@@ -2,20 +2,21 @@ import os
 import urllib.request
 import tempfile
 import zipfile
-from gensim.models import KeyedVectors
+from configparser import SectionProxy
 from typing import Dict
+from gensim.models import KeyedVectors
 
 
-def get_w2v_models(models_config: Dict[str, str]) -> Dict[str, KeyedVectors]:
+def get_w2v_models(models_config: SectionProxy) -> Dict[str, KeyedVectors]:
     return {
         'ru': load_russian_w2v(models_config)
     }
 
 
-def load_russian_w2v(models_config: Dict[str, str]) -> KeyedVectors:
-    rus_model_dir = os.path.join(models_config['W2VDir'], 'rus')
+def load_russian_w2v(models_config: SectionProxy) -> KeyedVectors:
+    rus_model_dir = os.path.join(models_config.get('W2VDir'), 'rus')
     metadata_file_path = os.path.join(rus_model_dir, 'meta.json')
-    model_download_url = models_config['RusW2VModelUrl']
+    model_download_url = models_config.get('RusW2VModelUrl')
     model_was_already_downloaded = os.path.isfile(metadata_file_path)
     if model_was_already_downloaded:
         print(f'Using an existent russian w2v model from {rus_model_dir}')

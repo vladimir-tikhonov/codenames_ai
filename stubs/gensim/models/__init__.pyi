@@ -1,0 +1,13 @@
+from typing import Dict, List, Tuple
+
+class KeyedVectors:
+    @staticmethod
+    def load_word2vec_format(path: str, binary: bool) -> KeyedVectors: ...
+
+    vocab: Dict[str, _VocabEntry]
+    def similarity(self, w1: str, w2: str) -> float: ...
+    def similar_by_word(self, w: str, topn: int, restrict_vocab: int) -> List[Tuple[str, float]]: ...
+    def init_sims(self, replace: bool) -> None: ...
+
+class _VocabEntry:
+    count: int
