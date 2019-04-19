@@ -154,8 +154,7 @@ def _remove_similar_explanation_of_the_same_thing(
             associations_grouped_by_associated_words[groping_key] = [association]
 
     result: List[Association] = []
-    for key in associations_grouped_by_associated_words:
-        grouped_associations = associations_grouped_by_associated_words[key]
+    for _, grouped_associations in associations_grouped_by_associated_words.items():
         associations_to_keep = int(config.get('MaxDifferentExplanationsOfTheSameThing'))
         if len(grouped_associations) <= associations_to_keep:
             result.extend(grouped_associations)
@@ -194,7 +193,7 @@ def _add_rival_words_and_filter_associations(
                 association_is_too_dangerous = True
                 break
 
-            association.add_rival_word((rival_word, rival_word_score))
+            association.add_rival_word((rival_word, float(rival_word_score)))
 
         if not association_is_too_dangerous:
             result.append(association)

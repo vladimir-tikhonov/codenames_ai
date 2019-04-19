@@ -1,7 +1,7 @@
 import argparse
 from codenames.config import read_app_config
 from codenames.models import get_w2v_models
-from codenames.associations import build_associations, get_score
+from codenames.associations import build_associations, get_score, prepare_rival_words_with_coefficients
 
 
 def cli() -> None:
@@ -25,10 +25,9 @@ def cli() -> None:
 
     w2v_models = get_w2v_models(models_config)
 
-    rival_words_with_coefficients = \
-        list(zip(opponent_agents, [float(associations_config['OpponentsCoefficient'])] * len(opponent_agents))) + \
-        list(zip(assassins, [float(associations_config['AssassinsCoefficient'])] * len(assassins))) + \
-        list(zip(bystanders, [float(associations_config['BystanderCoefficient'])] * len(bystanders)))
+    rival_words_with_coefficients = prepare_rival_words_with_coefficients(
+        assassins, opponent_agents, bystanders, associations_config
+    )
 
     associations = build_associations(
         my_agents,
@@ -37,8 +36,12 @@ def cli() -> None:
         associations_config
     )
 
+    if not associations:
+        print('No associations found :(')
+        return
+
     for association in sorted(associations, key=get_score, reverse=True):
-        print(association)
+        print(str(association))
 
 
 cli()

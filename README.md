@@ -11,6 +11,18 @@ python -m codenames.cli fox,dog --opponent-agents cat,mouse --assassins duck --b
 python -m codenames.cli --help
 ```
 
+### API
+```bash
+# Running in development mode
+FLASK_APP=codenames.api FLASK_ENV=development flask run
+# Running in production mode
+FLASK_APP=codenames.api FLASK_ENV=production flask run
+
+# Example of POST /api/associations request
+curl 'http://127.0.0.1:5000/api/associations' -H 'Content-Type: application/json' --data-binary \
+     $'{"my_agents": ["fox"], "opponent_agents": ["cat"], "assassins": ["duck"], "bystanders": ["cow"], "lang": "en"}'
+```
+
 ### Dev cheatsheet
 ```bash
 # Linting

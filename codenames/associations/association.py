@@ -32,5 +32,5 @@ class Association:
     def copy(self) -> Any:
         return Association(self.association_word, list(zip(self.associated_words, self.associated_word_scores)))
 
-    def __repr__(self) -> str:
-        return f'{self.association_word} -> {self.associated_words}'
+    def __str__(self) -> str:
+        return f'{self.association_word:10} -> {", ".join(self.associated_words)}'

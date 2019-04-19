@@ -10,6 +10,9 @@ gensim = "*"
 mypy = "*"
 pylint = "*"
 flake8 = "*"
+flask = "*"
+jsonschema = "*"
+numpy = "*"
 
 [requires]
 python_version = "3.7"
