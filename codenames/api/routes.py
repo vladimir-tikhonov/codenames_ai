@@ -38,7 +38,6 @@ def init_routes(app: Flask) -> None:
             w2v_models[lang],
             associations_config
         )
-        print(list(map(_serialize_association, associations)))
         return jsonify({
             'associations': list(map(_serialize_association, associations))
         })

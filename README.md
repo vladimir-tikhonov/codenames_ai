@@ -14,10 +14,9 @@ python -m codenames.cli --help
 ### API
 ```bash
 # Running in development mode
-FLASK_APP=codenames.api FLASK_ENV=development flask run
+FLASK_APP=codenames.api:create_app FLASK_ENV=development flask run
 # Running in production mode
-FLASK_APP=codenames.api FLASK_ENV=production flask run
-
+waitress-serve --call codenames.api:create_app
 # Example of POST /api/associations request
 curl 'http://127.0.0.1:5000/api/associations' -H 'Content-Type: application/json' --data-binary \
      $'{"my_agents": ["fox"], "opponent_agents": ["cat"], "assassins": ["duck"], "bystanders": ["cow"], "lang": "en"}'
@@ -26,7 +25,9 @@ curl 'http://127.0.0.1:5000/api/associations' -H 'Content-Type: application/json
 ### Dev cheatsheet
 ```bash
 # Linting
-pylint codenames
-flake8 codenames
-mypy codenames --strict
+make lint
+# Build docker image for production
+make build-docker
+# Run production image API on port 8080
+make run-api-docker
 ```
