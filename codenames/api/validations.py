@@ -5,15 +5,16 @@ ASSOCIATION_REQUEST_SCHEMA = {
     '$schema': 'http://json-schema.org/draft-07/schema#',
     'type': 'object',
     'properties': {
-        'my_agents': {
+        'myAgents': {
             'type': 'array',
             'items': {
                 'type': 'string',
             },
             'minItems': 1,
+            'maxItems': 10,
             'uniqueItems': True
         },
-        'opponent_agents': {
+        'opponentAgents': {
             'type': 'array',
             'items': {
                 'type': 'string',
@@ -39,7 +40,7 @@ ASSOCIATION_REQUEST_SCHEMA = {
             'enum': ['en', 'ru']
         }
     },
-    'required': ['my_agents', 'opponent_agents', 'assassins', 'bystanders', 'lang']
+    'required': ['myAgents', 'opponentAgents', 'assassins', 'bystanders', 'lang']
 }
 
 
@@ -49,6 +50,6 @@ def validate_association_request(request: Any) -> Optional[Dict[str, Any]]:
         return None
     except ValidationError as ex:
         return {
-            'error_message': ex.message,
+            'errorMessage': ex.message,
             'schema': ASSOCIATION_REQUEST_SCHEMA
         }

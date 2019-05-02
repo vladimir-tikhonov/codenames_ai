@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 from flask import Flask, jsonify, request
 from codenames.config import read_app_config
 from codenames.models import get_w2v_models
@@ -22,34 +22,47 @@ def init_routes(app: Flask) -> None:
             response.status_code = 400
             return response
 
-        my_agents = request.json['my_agents']
-        assassins = request.json['assassins']
-        opponent_agents = request.json['opponent_agents']
-        bystanders = request.json['bystanders']
+        my_agents = preprocess_words(request.json['myAgents'])
+        assassins = preprocess_words(request.json['assassins'])
+        opponent_agents = preprocess_words(request.json['opponentAgents'])
+        bystanders = preprocess_words(request.json['bystanders'])
         lang = request.json['lang']
 
         rival_words_with_coefficients = prepare_rival_words_with_coefficients(
             assassins, opponent_agents, bystanders, associations_config
         )
 
-        associations = build_associations(
-            my_agents,
-            rival_words_with_coefficients,
-            w2v_models[lang],
-            associations_config
-        )
-        return jsonify({
-            'associations': list(map(_serialize_association, associations))
-        })
+        try:
+            associations = build_associations(
+                my_agents,
+                rival_words_with_coefficients,
+                w2v_models[lang],
+                associations_config
+            )
+            return jsonify({
+                'associations': list(map(_serialize_association, associations))
+            })
+        except Exception as ex:  # pylint: disable=broad-except
+            response = jsonify({'errorMessage': str(ex)})
+            response.status_code = 500
+            return response
 
 
 def _serialize_association(association: Association) -> Dict[str, Any]:
     return {
-        'association_word': association.association_word,
-        'associated_words': association.associated_words,
-        'rival_words': association.rival_words,
-        'rival_word_scores': association.rival_word_scores,
-        'overall_score': get_score(association),
-        'guessable_score': get_guessable_score(association),
-        'confusion_score': get_confusion_score(association)
+        'associationWord': association.association_word,
+        'associatedWords': association.associated_words,
+        'rivalWords': association.rival_words,
+        'rivalWordScores': association.rival_word_scores,
+        'overallScore': get_score(association),
+        'guessableScore': get_guessable_score(association),
+        'confusionScore': get_confusion_score(association)
     }
+
+
+def preprocess_words(words: List[str]) -> List[str]:
+    return list(map(preprocess_word, words))
+
+
+def preprocess_word(word: str) -> str:
+    return word.lower().strip()

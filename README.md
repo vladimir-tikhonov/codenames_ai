@@ -19,7 +19,7 @@ FLASK_APP=codenames.api:create_app FLASK_ENV=development flask run
 waitress-serve --call codenames.api:create_app
 # Example of POST /api/associations request
 curl 'http://127.0.0.1:5000/api/associations' -H 'Content-Type: application/json' --data-binary \
-     $'{"my_agents": ["fox"], "opponent_agents": ["cat"], "assassins": ["duck"], "bystanders": ["cow"], "lang": "en"}'
+     $'{"myAgents": ["fox"], "opponentAgents": ["cat"], "assassins": ["duck"], "bystanders": ["cow"], "lang": "en"}'
 ```
 
 ### Dev cheatsheet
