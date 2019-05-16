@@ -1,13 +1,13 @@
 from typing import List, Tuple
-from configparser import SectionProxy
+from frozendict import frozendict
 
 
 def prepare_rival_words_with_coefficients(
         assassins: List[str],
         opponent_agents: List[str],
         bystanders: List[str],
-        config: SectionProxy) -> List[Tuple[str, float]]:
+        config: frozendict) -> List[Tuple[str, float]]:
     return \
-        list(zip(opponent_agents, [float(config['OpponentsCoefficient'])] * len(opponent_agents))) + \
-        list(zip(assassins, [float(config['AssassinsCoefficient'])] * len(assassins))) + \
-        list(zip(bystanders, [float(config['BystanderCoefficient'])] * len(bystanders)))
+        list(zip(opponent_agents, [config['opponentsCoefficient']] * len(opponent_agents))) + \
+        list(zip(assassins, [config['assassinsCoefficient']] * len(assassins))) + \
+        list(zip(bystanders, [config['bystanderCoefficient']] * len(bystanders)))

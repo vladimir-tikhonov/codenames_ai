@@ -1,0 +1,19 @@
+{
+  "models": {
+    "w2v": {
+      "path": "models/w2v",
+      "ruModelUrl": "http://vectors.nlpl.eu/repository/11/182.zip"
+    }
+  },
+  "associations": {
+    "similarWordsToConsider": 750,
+    "validPOSTagsForAssociatedWords": ["NOUN", "PROPN"],
+    "validPOSTagsForAssociations": ["ADJ", "ADV", "NOUN", "VERB"],
+    "minSimilarityScore": 0.35,
+    "amountOfTopWordsForAssociations": 90000,
+    "maxDifferentExplanationsOfTheSameThing": 3,
+    "assassinsCoefficient": 1.2,
+    "opponentsCoefficient": 1.1,
+    "bystanderCoefficient": 1.0
+  }
+}

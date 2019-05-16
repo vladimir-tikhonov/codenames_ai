@@ -1,13 +1,14 @@
 import os
+from pathlib import Path
 import urllib.request
 import tempfile
 import zipfile
-from configparser import SectionProxy
 from typing import Dict
 from gensim.models import KeyedVectors
+from frozendict import frozendict
 
 
-def get_w2v_models(config: SectionProxy) -> Dict[str, KeyedVectors]:
+def get_w2v_models(config: frozendict) -> Dict[str, KeyedVectors]:
     ensure_w2v_models_are_loaded(config)
 
     return {
@@ -15,10 +16,11 @@ def get_w2v_models(config: SectionProxy) -> Dict[str, KeyedVectors]:
     }
 
 
-def ensure_w2v_models_are_loaded(config: SectionProxy) -> None:
-    rus_model_dir = os.path.join(config.get('W2VDir'), 'rus')
+def ensure_w2v_models_are_loaded(config: frozendict) -> None:
+    models_dir = Path(config['path'])
+    rus_model_dir = models_dir / 'rus'
     metadata_file_path = os.path.join(rus_model_dir, 'meta.json')
-    model_download_url = config.get('RusW2VModelUrl')
+    model_download_url = config['ruModelUrl']
     model_was_already_downloaded = os.path.isfile(metadata_file_path)
 
     if model_was_already_downloaded:
@@ -35,8 +37,9 @@ def ensure_w2v_models_are_loaded(config: SectionProxy) -> None:
     print('Done.')
 
 
-def _load_russian_w2v(config: SectionProxy) -> KeyedVectors:
-    rus_model_dir = os.path.join(config.get('W2VDir'), 'rus')
-    model = KeyedVectors.load_word2vec_format(os.path.join(rus_model_dir, 'model.bin'), binary=True)
+def _load_russian_w2v(config: frozendict) -> KeyedVectors:
+    models_dir = Path(config['path'])
+    rus_model_dir = models_dir / 'rus'
+    model = KeyedVectors.load_word2vec_format(rus_model_dir / 'model.bin', binary=True)
     model.init_sims(replace=True)
     return model

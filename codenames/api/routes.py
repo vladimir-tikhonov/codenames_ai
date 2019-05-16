@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Any, List, Dict
 from flask import Flask, jsonify, request
 from codenames.config import read_app_config
 from codenames.models import get_w2v_models
@@ -12,7 +12,7 @@ def init_routes(app: Flask) -> None:
     models_config = app_config['models']
     associations_config = app_config['associations']
 
-    w2v_models = get_w2v_models(models_config)
+    w2v_models = get_w2v_models(models_config['w2v'])
 
     @app.route('/api/associations', methods=['POST'])
     def generate_associations() -> Any:  # pylint: disable=unused-variable

@@ -23,7 +23,7 @@ def cli() -> None:
     models_config = app_config['models']
     associations_config = app_config['associations']
 
-    w2v_models = get_w2v_models(models_config)
+    w2v_models = get_w2v_models(models_config['w2v'])
 
     rival_words_with_coefficients = prepare_rival_words_with_coefficients(
         assassins, opponent_agents, bystanders, associations_config

@@ -14,6 +14,8 @@ flask = "*"
 jsonschema = "*"
 numpy = "*"
 waitress = "*"
+opencv-python = "*"
+frozendict = "*"
 
 [requires]
 python_version = "3.7"

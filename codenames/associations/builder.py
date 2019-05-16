@@ -1,7 +1,8 @@
 from typing import List, Dict, Tuple
 from functools import partial, reduce
-from configparser import SectionProxy
+from functools import lru_cache
 from gensim.models import KeyedVectors
+from frozendict import frozendict
 from .association import Association
 from .metrics import get_score
 
@@ -10,8 +11,8 @@ def build_associations(
         words: List[str],
         rival_words_with_coefficients: List[Tuple[str, float]],
         model: KeyedVectors,
-        config: SectionProxy) -> List[Association]:
-    two_word_associations = []
+        config: frozendict) -> List[Association]:
+    two_word_associations: List[Association] = []
     for i, word_a in enumerate(words):
         for word_b in words[i + 1:]:
             two_word_associations.extend(_get_all_associations_between(word_a, word_b, model, config))
@@ -41,17 +42,18 @@ def build_associations(
     ]
 
     return reduce(
-        lambda associations, processing_step: processing_step(associations),
+        lambda associations, processing_step: processing_step(associations),  # type: ignore
         processing_steps,
         all_associations
     )
 
 
+@lru_cache(maxsize=1024)
 def _get_all_associations_between(
         word_a: str,
         word_b: str,
         model: KeyedVectors,
-        config: SectionProxy) -> List[Association]:
+        config: frozendict) -> List[Association]:
     similar_words_with_scores_a = _get_similar_words_with_scores(word_a, model, config)
     similar_words_with_scores_b = _get_similar_words_with_scores(word_b, model, config)
     association_words = set(similar_words_with_scores_a.keys()).intersection(similar_words_with_scores_b.keys())
@@ -71,9 +73,9 @@ def _extend_associations_with(
         associations: List[Association],
         words: List[str],
         model: KeyedVectors,
-        config: SectionProxy) -> List[Association]:
-    valid_pos_tags_for_associations = config.get('ValidPOSTagsForAssociations').split(',')
-    valid_pos_tags_for_associated_words = config.get('ValidPOSTagsForAssociatedWords').split(',')
+        config: frozendict) -> List[Association]:
+    valid_pos_tags_for_associations = config['validPOSTagsForAssociations']
+    valid_pos_tags_for_associated_words = config['validPOSTagsForAssociatedWords']
 
     result = []
     for association in associations:
@@ -90,7 +92,7 @@ def _extend_associations_with(
                 _get_most_likely_pos_tag(word, valid_pos_tags_for_associated_words, model)
             )
             similarity = model.similarity(association_word_with_tag, word_with_tag)
-            if similarity < float(config.get('MinSimilarityScore')):
+            if similarity < config['minSimilarityScore']:
                 continue
 
             new_association = association.copy()
@@ -144,7 +146,7 @@ def _is_duplicate_or_subset(smaller_association: Association, bigger_association
 
 def _remove_similar_explanation_of_the_same_thing(
         associations: List[Association],
-        config: SectionProxy) -> List[Association]:
+        config: frozendict) -> List[Association]:
     associations_grouped_by_associated_words: Dict[str, List[Association]] = {}
     for association in associations:
         groping_key = ','.join(association.associated_words)
@@ -155,7 +157,7 @@ def _remove_similar_explanation_of_the_same_thing(
 
     result: List[Association] = []
     for _, grouped_associations in associations_grouped_by_associated_words.items():
-        associations_to_keep = int(config.get('MaxDifferentExplanationsOfTheSameThing'))
+        associations_to_keep = config['maxDifferentExplanationsOfTheSameThing']
         if len(grouped_associations) <= associations_to_keep:
             result.extend(grouped_associations)
         else:
@@ -168,10 +170,10 @@ def _add_rival_words_and_filter_associations(
         associations: List[Association],
         rival_words_with_coefficients: List[Tuple[str, float]],
         model: KeyedVectors,
-        config: SectionProxy) -> List[Association]:
+        config: frozendict) -> List[Association]:
     result: List[Association] = []
-    valid_pos_tags_for_associations = config.get('ValidPOSTagsForAssociations').split(',')
-    valid_pos_tags_for_associated_words = config.get('ValidPOSTagsForAssociatedWords').split(',')
+    valid_pos_tags_for_associations = config['validPOSTagsForAssociations']
+    valid_pos_tags_for_associated_words = config['validPOSTagsForAssociatedWords']
 
     for association in associations:
         min_associated_word_score = min(association.associated_word_scores)
@@ -201,23 +203,23 @@ def _add_rival_words_and_filter_associations(
     return result
 
 
-def _get_similar_words_with_scores(word: str, model: KeyedVectors, config: SectionProxy) -> Dict[str, float]:
+def _get_similar_words_with_scores(word: str, model: KeyedVectors, config: frozendict) -> Dict[str, float]:
     scores_by_similar_word: Dict[str, float] = {}
-    valid_pos_tags_for_associations = set(config.get('ValidPOSTagsForAssociations').split(','))
-    valid_pos_tags_for_associated_words = config.get('ValidPOSTagsForAssociatedWords').split(',')
+    valid_pos_tags_for_associations = set(config['validPOSTagsForAssociations'])
+    valid_pos_tags_for_associated_words = config['validPOSTagsForAssociatedWords']
 
     most_likely_pos_tag = _get_most_likely_pos_tag(word, valid_pos_tags_for_associated_words, model)
     word_with_pos_tag = _add_pos_tag(word, most_likely_pos_tag)
     similar_words_with_scores_and_tags = model.similar_by_word(
         word_with_pos_tag,
-        topn=int(config.get('SimilarWordsToConsider')),
-        restrict_vocab=int(config.get('AmountOfTopWordsForAssociations'))
+        topn=config['similarWordsToConsider'],
+        restrict_vocab=config['amountOfTopWordsForAssociations']
     )
     similar_words_with_scores = [(_remove_pos_tag(similar_word), score) for similar_word, score
                                  in similar_words_with_scores_and_tags
                                  if _get_pos_tag(similar_word) in valid_pos_tags_for_associations and
                                  similar_word != word and
-                                 score > float(config.get('MinSimilarityScore'))]
+                                 score > config['minSimilarityScore']]
 
     for similar_word, score in similar_words_with_scores:
         if similar_word in scores_by_similar_word:
