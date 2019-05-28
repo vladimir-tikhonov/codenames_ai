@@ -1,8 +1,10 @@
 import argparse
-import os
 import glob
+import os
 from pathlib import Path
+
 import cv2
+
 from codenames.preprocessing import Split
 
 
@@ -21,7 +23,7 @@ def preprocess() -> None:
     os.makedirs(output_path, exist_ok=True)
 
     processor = Split()
-    files_to_process = list(map(Path, glob.glob(str(input_path / '*.[jpg][jpeg][png]'))))
+    files_to_process = list(map(Path, glob.glob(str(input_path / '*.*'))))
     for file_to_process in files_to_process:
         path_to_file, extension = os.path.splitext(str(file_to_process))
         filename = os.path.basename(path_to_file)

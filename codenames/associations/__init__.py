@@ -1,5 +1,5 @@
-from .builder import build_associations
 from .association import Association
+from .builder import build_associations
 from .metrics import get_score, get_guessable_score, get_confusion_score
 from .misc import prepare_rival_words_with_coefficients
 

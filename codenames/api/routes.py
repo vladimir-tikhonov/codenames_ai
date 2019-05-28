@@ -1,9 +1,11 @@
 from typing import Any, List, Dict
+
 from flask import Flask, jsonify, request
-from codenames.config import read_app_config
-from codenames.models import get_w2v_models
+
 from codenames.associations import build_associations, prepare_rival_words_with_coefficients, \
     Association, get_score, get_guessable_score, get_confusion_score
+from codenames.config import read_app_config
+from codenames.models import get_w2v_models
 from .validations import validate_association_request
 
 

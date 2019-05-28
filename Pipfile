@@ -16,6 +16,8 @@ numpy = "*"
 waitress = "*"
 opencv-python = "*"
 frozendict = "*"
+keras = "*"
+tensorflow = "*"
 
 [requires]
 python_version = "3.7"

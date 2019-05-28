@@ -1,4 +1,5 @@
 from typing import Any, Optional, Dict
+
 from jsonschema import validate, ValidationError
 
 ASSOCIATION_REQUEST_SCHEMA = {

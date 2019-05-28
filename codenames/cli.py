@@ -1,7 +1,8 @@
 import argparse
+
+from codenames.associations import build_associations, get_score, prepare_rival_words_with_coefficients
 from codenames.config import read_app_config
 from codenames.models import get_w2v_models
-from codenames.associations import build_associations, get_score, prepare_rival_words_with_coefficients
 
 
 def cli() -> None:

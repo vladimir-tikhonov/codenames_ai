@@ -1,8 +1,20 @@
 {
   "models": {
     "w2v": {
-      "path": "models/w2v",
+      "modelsDir": "models/w2v",
       "ruModelUrl": "http://vectors.nlpl.eu/repository/11/182.zip"
+    },
+    "yolo": {
+      "modelDir": "models/yolo",
+      "modelPath": "models/yolo/yolo_v2.h5",
+      "modelUrl": "https://www.dropbox.com/s/obn7woabs8wav11/yolo_v2.h5.zip?raw=1",
+      "inputSize": 416,
+      "gridSize": 13,
+      "maxBoxes": 25,
+      "iouThreshold": 0.3,
+      "scoreThreshold": 0.5,
+      "detectionThreshold": 0.3,
+      "anchors": [4.05402, 1.71911, 1.92065, 2.83549, 2.86613, 1.26893, 4.70233, 2.28580, 3.44187, 2.17561]
     }
   },
   "associations": {

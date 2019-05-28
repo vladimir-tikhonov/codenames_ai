@@ -1,8 +1,10 @@
-from typing import List, Dict, Tuple
-from functools import partial, reduce
 from functools import lru_cache
-from gensim.models import KeyedVectors
+from functools import partial, reduce
+from typing import List, Dict, Tuple
+
 from frozendict import frozendict
+from gensim.models import KeyedVectors
+
 from .association import Association
 from .metrics import get_score
 

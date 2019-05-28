@@ -1,6 +1,6 @@
 from typing import List, TypeVar
-from numpy import ndarray
 
+from numpy import ndarray
 
 T = TypeVar('T')
 
