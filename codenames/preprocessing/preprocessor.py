@@ -1,4 +1,4 @@
-from typing import List, TypeVar
+from typing import List, TypeVar, Tuple
 
 from numpy import ndarray
 
@@ -10,12 +10,8 @@ def flatten(nested_list: List[List[T]]) -> List[T]:
 
 
 class Preprocessor:
-    @staticmethod
-    def get_image_postfixes() -> List[str]:
-        return ['']
-
-    def process(self, image: ndarray) -> List[ndarray]:
+    def process(self, image: ndarray) -> List[Tuple[ndarray, str]]:
         raise NotImplementedError()
 
-    def process_batch(self, images: List[ndarray]) -> List[ndarray]:
+    def process_batch(self, images: List[ndarray]) -> List[Tuple[ndarray, str]]:
         return flatten(list(map(self.process, images)))

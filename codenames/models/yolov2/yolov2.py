@@ -33,35 +33,6 @@ def ensure_yolo_models_is_loaded(config: frozendict) -> None:
     print('Done.')
 
 
-def draw_boxes(image_in: np.ndarray, boxes: np.ndarray, scores: np.ndarray) -> np.ndarray:
-    image = image_in.copy()
-    image_h, image_w, _ = image.shape
-
-    color_mod = 255
-
-    for i, box in enumerate(boxes):
-        x_min = int(box[0] * image_w)
-        y_min = int(box[1] * image_h)
-        x_max = int(box[2] * image_w)
-        y_max = int(box[3] * image_h)
-
-        if scores is None:
-            text = ''
-            color_mod = 0
-        else:
-            text = "(%.1f%%)" % (100 * scores[i])
-
-        cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (color_mod, 255, 0), 2)
-
-        cv2.putText(image,
-                    text,
-                    (x_min, y_min - 15),
-                    cv2.FONT_HERSHEY_COMPLEX,
-                    1e-3 * image_h,
-                    (color_mod, 255, 0), 1)
-    return image
-
-
 class YoloV2:
     def __init__(self, config: frozendict):
         self.config = config
@@ -70,15 +41,9 @@ class YoloV2:
         processed_output = Lambda(PostProcessing(config), name='output_postprocess')(raw_model.output)
         self.model = Model(raw_model.input, processed_output)
 
-    def run(self, image_path: str) -> None:
-        out_path = os.path.dirname(image_path)
-        image = cv2.imread(image_path)
-
-        boxes, scores = self._get_boxes(image.copy())
-        image = draw_boxes(image, boxes, scores)
-        image_path_without_extension = str(os.path.basename(image_path).split('.')[0])
-        out_name = os.path.join(out_path, image_path_without_extension + '_marked.png')
-        cv2.imwrite(out_name, image)
+    def run(self, image: np.ndarray) -> np.ndarray:
+        boxes, _ = self._get_boxes(image.copy())
+        return boxes
 
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
         image = cv2.resize(image, (self.config['inputSize'], self.config['inputSize']))
