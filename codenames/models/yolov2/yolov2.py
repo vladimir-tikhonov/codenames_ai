@@ -3,6 +3,7 @@ import tempfile
 import urllib.request
 import zipfile
 from typing import Tuple
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -14,12 +15,11 @@ from codenames.models.yolov2.post_processing import PostProcessing
 
 
 def ensure_yolo_models_is_loaded(config: frozendict) -> None:
-    model_path = config['modelPath']
-    model_dir, _ = os.path.split(model_path)
+    model_path = Path(config['modelPath'])
+    model_dir = model_path.parent
     model_download_url = config['modelUrl']
-    model_was_already_downloaded = os.path.isfile(model_path)
 
-    if model_was_already_downloaded:
+    if model_path.is_file():
         print(f'Using an existent yolo model from {model_path}')
         return
 

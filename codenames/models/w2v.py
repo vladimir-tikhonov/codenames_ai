@@ -20,9 +20,9 @@ def get_w2v_models(config: frozendict) -> Dict[str, KeyedVectors]:
 def ensure_w2v_models_are_loaded(config: frozendict) -> None:
     models_dir = Path(config['modelsDir'])
     rus_model_dir = models_dir / 'rus'
-    metadata_file_path = os.path.join(rus_model_dir, 'meta.json')
+    metadata_file_path = rus_model_dir / 'meta.json'
     model_download_url = config['ruModelUrl']
-    model_was_already_downloaded = os.path.isfile(metadata_file_path)
+    model_was_already_downloaded = metadata_file_path.is_file()
 
     if model_was_already_downloaded:
         print(f'Using an existent russian w2v model from {rus_model_dir}')

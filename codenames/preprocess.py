@@ -1,5 +1,4 @@
 import argparse
-import glob
 import os
 from pathlib import Path
 
@@ -25,17 +24,14 @@ def preprocess() -> None:
 
     input_path = Path(args['in'])
     output_path = Path(args['out'])
-    is_dir = os.path.isdir(input_path)
 
-    if not is_dir:
+    if not input_path.is_dir():
         raise ValueError(f'{input_path} is not an existing directory')
     os.makedirs(output_path, exist_ok=True)
 
     processor = preprocessors[args['preprocessor']]
-    files_to_process = list(map(Path, glob.glob(str(input_path / '*.*'))))
-    for file_to_process in files_to_process:
-        path_to_file, extension = os.path.splitext(str(file_to_process))
-        filename = os.path.basename(path_to_file)
+    for file_to_process in input_path.glob('*.*'):
+        filename, extension = file_to_process.stem, file_to_process.suffix
         original_image = cv2.imread(str(file_to_process))
         processed_images_with_postfixes = processor.process(original_image)
         for processed_image, postfix in processed_images_with_postfixes:
