@@ -1,5 +1,6 @@
 import argparse
 import os
+from itertools import chain
 from pathlib import Path
 
 import cv2
@@ -30,7 +31,8 @@ def preprocess() -> None:
     os.makedirs(output_path, exist_ok=True)
 
     processor = preprocessors[args['preprocessor']]
-    for file_to_process in input_path.glob('*.*'):
+    files_to_process = chain(input_path.glob('*.jpg'), input_path.glob('*.jpeg'), input_path.glob('*.png'))
+    for file_to_process in files_to_process:
         filename, extension = file_to_process.stem, file_to_process.suffix
         original_image = cv2.imread(str(file_to_process))
         processed_images_with_postfixes = processor.process(original_image)

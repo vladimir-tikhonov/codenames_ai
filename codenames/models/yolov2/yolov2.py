@@ -2,8 +2,8 @@ import os
 import tempfile
 import urllib.request
 import zipfile
-from typing import Tuple
 from pathlib import Path
+from typing import List
 
 import cv2
 import numpy as np
@@ -33,6 +33,20 @@ def ensure_yolo_models_is_loaded(config: frozendict) -> None:
     print('Done.')
 
 
+def _is_nonzero_box(box: List[int]) -> bool:
+    return box[0] != box[2] and box[1] != box[3]
+
+
+def _scale_box(image: np.ndarray, box: np.ndarray) -> List[int]:
+    image_h, image_w, _ = image.shape
+    return [
+        max(int(box[0] * image_w), 0),
+        max(int(box[1] * image_h), 0),
+        int(box[2] * image_w),
+        int(box[3] * image_h),
+    ]
+
+
 class YoloV2:
     def __init__(self, config: frozendict):
         self.config = config
@@ -41,9 +55,15 @@ class YoloV2:
         processed_output = Lambda(PostProcessing(config), name='output_postprocess')(raw_model.output)
         self.model = Model(raw_model.input, processed_output)
 
-    def run(self, image: np.ndarray) -> np.ndarray:
-        boxes, _ = self._get_boxes(image.copy())
-        return boxes
+    def run(self, image: np.ndarray) -> List[List[int]]:
+        output = self.model.predict(self._preprocess_image(image))[0]
+
+        if output.size == 0:
+            return []
+
+        boxes = list(output[:, :4])
+        scaled_boxes = map(lambda box: _scale_box(image, box), boxes)
+        return list(filter(_is_nonzero_box, scaled_boxes))
 
     def _preprocess_image(self, image: np.ndarray) -> np.ndarray:
         image = cv2.resize(image, (self.config['inputSize'], self.config['inputSize']))
@@ -54,13 +74,3 @@ class YoloV2:
         image = np.expand_dims(image, 0)
 
         return image
-
-    def _get_boxes(self, image: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        output = self.model.predict(self._preprocess_image(image))[0]
-
-        if output.size == 0:
-            return np.array([]), np.array([])
-
-        boxes = output[:, :4]
-        scores = output[:, 4]
-        return boxes, scores
