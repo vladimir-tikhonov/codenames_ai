@@ -4,6 +4,9 @@
       "modelsDir": "models/w2v",
       "ruModelUrl": "http://vectors.nlpl.eu/repository/11/182.zip"
     },
+    "rotation": {
+      "imageSize": 150
+    },
     "yolo": {
       "modelDir": "models/yolo",
       "modelPath": "models/yolo/yolo_v2.h5",
