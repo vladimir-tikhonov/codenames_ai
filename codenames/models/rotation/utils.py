@@ -6,7 +6,7 @@ def to_grayscale(image: np.ndarray) -> np.ndarray:
     return cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
 
-def crop(image: np.ndarray, size: int) -> np.ndarray:
+def scale_image(image: np.ndarray, size: int) -> np.ndarray:
     return cv2.resize(image, (size, size))
 
 
@@ -16,11 +16,9 @@ def rotate_image(image: np.ndarray, angle_degrees: int) -> np.ndarray:
 
     rotation_mat = cv2.getRotationMatrix2D(image_center, angle_degrees, 1.)
 
-    # rotation calculates the cos and sin, taking absolutes of those.
     abs_cos = abs(rotation_mat[0, 0])
     abs_sin = abs(rotation_mat[0, 1])
 
-    # find the new width and height bounds
     bound_w = int(height * abs_sin + width * abs_cos)
     bound_h = int(height * abs_cos + width * abs_sin)
 

@@ -5,16 +5,13 @@ from pathlib import Path
 
 import cv2
 
-from codenames.config import read_app_config
-from codenames.models import YoloV2
 from codenames.preprocessing import Split, ExtractCards, Rotate
 
 
 def preprocess() -> None:
-    config = read_app_config()
     preprocessors = {
         'split': Split(),
-        'extract_cards': ExtractCards(YoloV2(config['models']['yolo'])),
+        'extract_cards': ExtractCards(),
         'rotate': Rotate()
     }
 

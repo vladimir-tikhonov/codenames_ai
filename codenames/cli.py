@@ -1,7 +1,6 @@
 import argparse
 
 from codenames.associations import build_associations, get_score, prepare_rival_words_with_coefficients
-from codenames.config import read_app_config
 from codenames.models import get_w2v_models
 
 
@@ -20,21 +19,16 @@ def cli() -> None:
     bystanders = args['bystanders'].split(',') if args['bystanders'] else []
     lang = args['lang']
 
-    app_config = read_app_config()
-    models_config = app_config['models']
-    associations_config = app_config['associations']
-
-    w2v_models = get_w2v_models(models_config['w2v'])
+    w2v_models = get_w2v_models()
 
     rival_words_with_coefficients = prepare_rival_words_with_coefficients(
-        assassins, opponent_agents, bystanders, associations_config
+        assassins, opponent_agents, bystanders
     )
 
     associations = build_associations(
         my_agents,
         rival_words_with_coefficients,
-        w2v_models[lang],
-        associations_config
+        w2v_models[lang]
     )
 
     if not associations:

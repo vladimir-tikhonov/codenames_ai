@@ -12,8 +12,8 @@ def extract_box(image: ndarray, box: List[int]) -> ndarray:
 
 
 class ExtractCards(Preprocessor):
-    def __init__(self, yolo_model: YoloV2):
-        self.yolo_model = yolo_model
+    def __init__(self) -> None:
+        self.yolo_model = YoloV2()
 
     def process(self, image: ndarray) -> List[Tuple[ndarray, str]]:
         boxes = self.yolo_model.run(image)

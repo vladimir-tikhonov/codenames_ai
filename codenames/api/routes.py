@@ -4,17 +4,12 @@ from flask import Flask, jsonify, request
 
 from codenames.associations import build_associations, prepare_rival_words_with_coefficients, \
     Association, get_score, get_guessable_score, get_confusion_score
-from codenames.config import read_app_config
 from codenames.models import get_w2v_models
 from .validations import validate_association_request
 
 
 def init_routes(app: Flask) -> None:
-    app_config = read_app_config()
-    models_config = app_config['models']
-    associations_config = app_config['associations']
-
-    w2v_models = get_w2v_models(models_config['w2v'])
+    w2v_models = get_w2v_models()
 
     @app.route('/api/associations', methods=['POST'])
     def generate_associations() -> Any:  # pylint: disable=unused-variable
@@ -31,15 +26,14 @@ def init_routes(app: Flask) -> None:
         lang = request.json['lang']
 
         rival_words_with_coefficients = prepare_rival_words_with_coefficients(
-            assassins, opponent_agents, bystanders, associations_config
+            assassins, opponent_agents, bystanders
         )
 
         try:
             associations = build_associations(
                 my_agents,
                 rival_words_with_coefficients,
-                w2v_models[lang],
-                associations_config
+                w2v_models[lang]
             )
             return jsonify({
                 'associations': list(map(_serialize_association, associations))

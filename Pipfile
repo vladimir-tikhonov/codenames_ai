@@ -15,9 +15,9 @@ jsonschema = "*"
 numpy = "*"
 waitress = "*"
 opencv-python = "*"
-frozendict = "*"
 keras = "*"
 tensorflow = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.7"

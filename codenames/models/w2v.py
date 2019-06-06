@@ -2,30 +2,29 @@ import os
 import tempfile
 import urllib.request
 import zipfile
-from pathlib import Path
 from typing import Dict
 
-from frozendict import frozendict
 from gensim.models import KeyedVectors
 
+import codenames.config.w2v as w2v_config
 
-def get_w2v_models(config: frozendict) -> Dict[str, KeyedVectors]:
-    ensure_w2v_models_are_loaded(config)
+
+def get_w2v_models() -> Dict[str, KeyedVectors]:
+    ensure_w2v_models_are_loaded()
 
     return {
-        'ru': _load_russian_w2v(config)
+        'ru': _load_russian_w2v()
     }
 
 
-def ensure_w2v_models_are_loaded(config: frozendict) -> None:
-    models_dir = Path(config['modelsDir'])
-    rus_model_dir = models_dir / 'rus'
+def ensure_w2v_models_are_loaded() -> None:
+    rus_model_dir = w2v_config.MODELS_DIR / 'rus'
     metadata_file_path = rus_model_dir / 'meta.json'
-    model_download_url = config['ruModelUrl']
+    model_download_url = w2v_config.RU_MODEL_URL
     model_was_already_downloaded = metadata_file_path.is_file()
 
     if model_was_already_downloaded:
-        print(f'Using an existent russian w2v model from {rus_model_dir}')
+        print(f'Using an existing russian w2v model from {rus_model_dir}')
         return
 
     print(f'Downloading russian w2v model from {model_download_url}...')
@@ -38,9 +37,8 @@ def ensure_w2v_models_are_loaded(config: frozendict) -> None:
     print('Done.')
 
 
-def _load_russian_w2v(config: frozendict) -> KeyedVectors:
-    models_dir = Path(config['modelsDir'])
-    rus_model_dir = models_dir / 'rus'
+def _load_russian_w2v() -> KeyedVectors:
+    rus_model_dir = w2v_config.MODELS_DIR / 'rus'
     model = KeyedVectors.load_word2vec_format(rus_model_dir / 'model.bin', binary=True)
     model.init_sims(replace=True)
     return model
