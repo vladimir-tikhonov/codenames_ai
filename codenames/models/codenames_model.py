@@ -1,6 +1,8 @@
-from typing import List
+import functools
+from typing import List, TypeVar, Any, Callable
 
 import numpy as np
+import tensorflow as tf
 
 import codenames.config.associations as associations_config
 import codenames.config.rotation_model as rotation_model_config
@@ -10,13 +12,32 @@ from .utils import split_image_into_3_parts, extract_box
 from .w2v import get_w2v_models
 from .yolov2 import YoloV2
 
+T = TypeVar('T')
+
+
+def _with_session_and_graph(
+        session: tf.Session = tf.Session(),
+        graph: tf.Graph = tf.get_default_graph()) -> Callable[..., Callable[..., T]]:
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> T:
+            with graph.as_default():
+                with session.as_default():
+                    return func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
 
 class CodenamesModel:
+    @_with_session_and_graph()
     def __init__(self) -> None:
         self.w2v_models = get_w2v_models()
         self.yolo_model = YoloV2()
         self.rotation_model = load_model()
 
+    @_with_session_and_graph()
     def extract_codenames_from_image(self, image: np.ndarray) -> List[str]:
         result: List[str] = []
         image_parts = split_image_into_3_parts(image)

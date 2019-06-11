@@ -19,6 +19,8 @@ waitress-serve --call codenames.api:create_app
 # Example of POST /api/associations request
 curl 'http://127.0.0.1:5000/api/associations' -H 'Content-Type: application/json' --data-binary \
      $'{"myAgents": ["fox"], "opponentAgents": ["cat"], "assassins": ["duck"], "bystanders": ["cow"], "lang": "en"}'
+# Example of POST /api/detect request
+curl 'http://127.0.0.1:5000/api/detect' -F 'image=@/path/to/the/image/photo.jpg'
 ```
 
 ### Models
