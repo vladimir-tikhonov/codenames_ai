@@ -47,4 +47,6 @@ python -m codenames.preloader
 python -m codenames.preprocess extract_cards --in ./raw_images --out ./processed_images
 # Train a rotation model. Input images should have a 0 degree rotation
 python -m codenames.train_rotation --in ./cards --out ./model.h5
+# Prints all words found on images
+python -m codenames.detect_words --in ./cards
 ```

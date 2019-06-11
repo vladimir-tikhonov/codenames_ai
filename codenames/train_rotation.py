@@ -1,6 +1,5 @@
 import argparse
 import random
-from itertools import chain
 from pathlib import Path
 from typing import List, Generator
 
@@ -13,6 +12,7 @@ from sklearn.model_selection import train_test_split
 
 import codenames.config.rotation_model as rotation_model_config
 from codenames.models.rotation import scale_image, rotate_image, build_model, to_grayscale
+from codenames.preprocessing import get_all_images_in
 
 
 def image_generator(images: List[np.ndarray]) -> Generator[np.ndarray, None, None]:
@@ -55,7 +55,7 @@ def train() -> None:
     if not input_path.is_dir():
         raise ValueError(f'{input_path} is not an existing directory')
 
-    files_to_process = chain(input_path.glob('*.jpg'), input_path.glob('*.jpeg'), input_path.glob('*.png'))
+    files_to_process = get_all_images_in(input_path)
     images = [cv2.imread(str(image_path)) for image_path in files_to_process]
 
     random.seed(42)

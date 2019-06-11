@@ -1,11 +1,10 @@
 import argparse
 import os
-from itertools import chain
 from pathlib import Path
 
 import cv2
 
-from codenames.preprocessing import Split, ExtractCards, Rotate
+from codenames.preprocessing import Split, ExtractCards, Rotate, get_all_images_in
 
 
 def preprocess() -> None:
@@ -29,7 +28,7 @@ def preprocess() -> None:
     os.makedirs(output_path, exist_ok=True)
 
     processor = preprocessors[args['preprocessor']]
-    files_to_process = chain(input_path.glob('*.jpg'), input_path.glob('*.jpeg'), input_path.glob('*.png'))
+    files_to_process = get_all_images_in(input_path)
     for file_to_process in files_to_process:
         filename, extension = file_to_process.stem, file_to_process.suffix
         original_image = cv2.imread(str(file_to_process))

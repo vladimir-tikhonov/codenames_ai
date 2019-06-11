@@ -2,13 +2,8 @@ from typing import List, Tuple
 
 from numpy import ndarray
 
-from codenames.models import YoloV2
+from codenames.models import YoloV2, extract_box
 from .preprocessor import Preprocessor
-
-
-def extract_box(image: ndarray, box: List[int]) -> ndarray:
-    x_min, y_min, x_max, y_max = box
-    return image[y_min:y_max, x_min:x_max]
 
 
 class ExtractCards(Preprocessor):

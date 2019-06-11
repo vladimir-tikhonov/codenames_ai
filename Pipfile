@@ -18,6 +18,9 @@ opencv-python = "*"
 keras = "*"
 tensorflow = "*"
 sklearn = "*"
+pytesseract = "*"
+jupyterlab = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
